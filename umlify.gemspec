@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "umlify"
-  # spec.version       = Umlify::VERSION
+  spec.version       = "2.0.0.pre1"
   spec.authors       = ["Michael Sokol"]
   spec.email         = ["mikaa123@gmail.com"]
   spec.description   = %q{A tool to generate UML diagrams from ruby code}
