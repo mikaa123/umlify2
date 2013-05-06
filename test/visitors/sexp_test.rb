@@ -33,8 +33,8 @@ describe "SExp" do
       @sexp.find( :bar ).must_equal( [:bar] )
     end
 
-    it "returns nil when no sexp is found" do
-      @sexp.find( :qux ).must_be_nil
+    it "returns empty array when no sexp is found" do
+      @sexp.find( :qux ).must_equal( [] )
     end
   end
 end

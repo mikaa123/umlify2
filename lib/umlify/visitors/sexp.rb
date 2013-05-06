@@ -1,6 +1,5 @@
 module Umlify
   module Visitors
-
     class SExpError < RuntimeError; end
 
     class SExp < Struct.new( :op, :args )
@@ -16,9 +15,8 @@ module Umlify
       # Looks up the arg list to return the first the first
       # s-expression with an op code of `op`.
       def find( op )
-        args.find { |s| s[0] == op if s.respond_to? :[] }
+        args.find { |s| s[0] == op if s.respond_to? :[] } || []
       end
     end
-
   end
 end

@@ -1,39 +1,41 @@
 module Umlify
   module Visitors
     class ToUML < SexpVisitor
-      visitor_for :program do |sexp|
-        puts "visting program"
-        sexp.args.map { |s| s.accept( self ) }
-        Umlify::UmlClasses::UmlDiagram.new
+      def initialize
+        @uml_diagram = Umlify::UmlClasses::UmlDiagram.new
       end
 
-      visitor_for :stmts_add do |sexp|
-        sexp.args.map { |s| s.accept( self ) }
+      visitor_for :program do |sexp|
+        sexp.args.stop_at( :class ) do |klass|
+          @uml_diagram << klass.accept( self )
+        end
+        @uml_diagram.compute_dependencies!
       end
 
       visitor_for :class do |sexp|
-        puts "visiting class"
-
-        name_sexp = sexp.find( :const_ref )
-        name = name_sexp.accept( self ) if name_sexp
-
-        super_sexp = sexp.find( :var_ref )
-        super_name = super_sexp.accept( self ) if super_sexp
-
-        body = sexp.find( :bodystmt ).walk do |arr|
-          arr.accept( self ) if arr[0] == :@ident
+        methods = []
+        sexp.args.stop_at( :def ) do |arr|
+          methods << arr.accept( self )
         end
 
-        UMLClass.new( name, super_name )
+        constants = []
+        sexp.find( :bodystmt ).stop_at( :@const ) do |cst|
+          constants << cst.accept( self )
+        end
+
+        Umlify::UmlClasses::UmlClass.new(
+          name: sexp.find( :const_ref ).accept( self ),
+          super: sexp.find( :var_ref ).accept( self ),
+          methods: methods,
+          constants: constants
+        )
       end
 
-      visitor_for :const_ref, :var_ref do |sexp|
-        puts "visiting const_ref: #{sexp}"
+      visitor_for :const_ref, :var_ref, :def do |sexp|
         sexp.args.first.accept( self )
       end
 
       visitor_for :const, :ident do |sexp|
-        puts "visiting const"
         sexp.args.first
       end
     end

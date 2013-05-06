@@ -12,7 +12,6 @@ module Umlify
           sexp = SExp.new( arr )
           send( "visit_#{ sexp.op }", sexp )
         rescue SExpError => error
-          puts error
         rescue StandardError => error
         end
       end
